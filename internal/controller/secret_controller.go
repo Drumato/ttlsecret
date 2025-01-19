@@ -73,7 +73,7 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	if time.Now().Before(ttl) {
 		logger.V(0).Info("will enqueue after ttl will be expired")
-		return ctrl.Result{RequeueAfter: ttl.Sub(time.Now())}, nil
+		return ctrl.Result{RequeueAfter: time.Until(ttl)}, nil
 	}
 
 	logger.V(0).Info("delete secret", "namespace", secret.GetNamespace(), "name", secret.GetName())
