@@ -39,6 +39,7 @@ type SecretReconciler struct {
 const (
 	TTLAfterAgeAnnotation = "ttlsecret.drumato.com/ttl-after-age"
 	TTLAnnotation         = "ttlsecret.drumato.com/ttl"
+	TTLLayoutAnnotation   = "ttlsecret.drumato.com/ttl-layout"
 )
 
 // +kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
@@ -56,19 +57,13 @@ func (r *SecretReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, err
 	}
 
-	var ttl time.Time
-	ttlAnnotation := secret.GetAnnotations()[TTLAnnotation]
-	if ttlAnnotation == "" {
-		ttlAnnotation = secret.GetAnnotations()[TTLAfterAgeAnnotation]
-		if ttlAnnotation == "" {
-			return ctrl.Result{}, nil
-		}
+	annotations := secret.GetAnnotations()
 
-		t, err := time.Parse(time.RFC3339, ttlAnnotation)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		ttl = t
+	var ttl time.Time
+	ttlAnnotation := annotations[TTLAnnotation]
+	if ttlAnnotation != "" {
+		layout := time.RFC3339
+		if l := 
 	}
 
 	if time.Now().Before(ttl) {

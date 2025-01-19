@@ -18,12 +18,38 @@ package controller
 
 import (
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 var _ = Describe("Secret Controller", func() {
-	Context("When reconciling a resource", func() {
-
+	Context("When ttl was speficied", func() {
 		It("should successfully reconcile the resource", func() {
+			const secretName = "secretcontroller-ttl-succeed"
+			secret := corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "default",
+					Name:      secretName,
+					Annotations: map[string]string{
+						TTLAnnotation: "",
+					},
+				},
+			}
+			Eventually(func() error {
+				return k8sClient.Create(ctx, &secret)
+			}).Should(Succeed())
+
+			reconciler := &SecretReconciler{Client: k8sClient}
+			reconciler.Reconcile(ctx, ctrl.Request{
+				NamespacedName: types.NamespacedName{
+					Namespace: "default",
+					Name:      secretName,
+				},
+			})
 
 			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
 			// Example: If you expect a certain status condition after reconciliation, verify it here.
